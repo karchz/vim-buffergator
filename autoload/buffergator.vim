@@ -119,17 +119,19 @@ let s:buffergator_viewport_split_modes_cycle_list = ["L", "T", "R", "B"]
 
 " Buffer Status Symbols {{{3
 " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-let s:buffergator_buffer_line_symbols = {
-    \ 'current'  :    ">",
-    \ 'modified' :    "+",
-    \ 'alternate':    "#",
-    \ }
+" let s:buffergator_buffer_line_symbols = {
+"     \ 'current'  :    ">",
+"     \ 'modified' :    "+",
+"     \ }
 
+let s:buffergator_buffer_line_symbols = {
+    \ 'current'  :    get(g:,'buffergator_symbol_current',">"),
+    \ 'modified' :    get(g:,'buffergator_symbol_modified',">"),
+    \ }
 " dictionaries are not in any order, so store the order here
 let s:buffergator_buffer_line_symbols_order = [
     \ 'current',
     \ 'modified',
-    \ 'alternate',
     \ ]
 " 3}}}
 
@@ -1132,7 +1134,7 @@ function! s:NewBufferCatalogViewer()
         if has("syntax") && (!exists('b:did_syntax') || !b:did_syntax)
             syntax clear
             syn region BuffergatorFileLine start='^' keepend oneline end='$'
-            syn match BuffergatorBufferNr '^\[.\{3\}\]' containedin=BuffergatorFileLine
+            syn match BuffergatorBufferNr '\[.\{3\}\]' containedin=BuffergatorFileLine
             let l:line_symbols = values(s:buffergator_buffer_line_symbols)
             execute "syn match BuffergatorSymbol '[" . join(l:line_symbols,"") . "]' containedin=BuffergatorFileLine"
             for l:buffer_status_index in range(0, len(s:buffergator_buffer_line_symbols_order) - 1)
@@ -1152,6 +1154,12 @@ function! s:NewBufferCatalogViewer()
               let l:syntax_cmd = join(l:element," ")
               execute l:syntax_cmd
             endfor
+            " syn region BuffergatorCurrentFileLine start='^'.s:buffergator_buffer_line_symbols.current keepend oneline end='$'
+            execute "syn region BuffergatorCurrentFileLine start='^".s:buffergator_buffer_line_symbols.current."' keepend oneline end='$'"
+            " syn match BuffergatorCurrentBufferNr '\[.\{3\}\]' containedin=BuffergatorCurrentFileLine
+            " let l:line_current_symbols = values(s:buffergator_buffer_line_symbols)
+            " execute "syn match BuffergatorSymbol '[" . join(l:line_current_symbols,"") . "]' containedin=BuffergatorCurrentFileLine"
+
             highlight link BuffergatorSymbol Constant
             " highlight link BuffergatorAlternateEntry Function
             " highlight link BuffergatorModifiedEntry String
@@ -1289,9 +1297,8 @@ function! s:NewBufferCatalogViewer()
             endif
 
             let l:bufnum_str = s:_format_filled(l:bufinfo.bufnum, 3, 1, 0)
-            let l:line = "[" . l:bufnum_str . "]"
-
-            let l:line .= s:_format_filled(self.line_symbols(l:bufinfo),4,-1,0)
+            let l:line = s:_format_filled(self.line_symbols(l:bufinfo),3,-1,0)
+            let l:line .= "[" . l:bufnum_str . "] "
 
             if self.display_regime == "basename"
                 let l:line .= s:_format_align_left(l:bufinfo.basename, self.max_buffer_basename_len, " ")
@@ -1308,6 +1315,9 @@ function! s:NewBufferCatalogViewer()
             else
                 throw s:_buffergator_messenger.format_exception("Invalid display regime: '" . self.display_regime . "'")
             endif
+
+            let l:line .= repeat(' ', winwidth('%') - strlen(l:line))
+
             call self.append_line(l:line, l:bufinfo.bufnum)
         endfor
         let b:buffergator_last_render_time = localtime()
