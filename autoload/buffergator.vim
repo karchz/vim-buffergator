@@ -1215,7 +1215,6 @@ function! s:NewBufferCatalogViewer()
             noremap <buffer> <silent> I           :<C-U>call b:buffergator_catalog_viewer.visit_target(1, 1, "sb")<CR>
             noremap <buffer> <silent> gi          :<C-U>call b:buffergator_catalog_viewer.visit_target(1, 1, "sb")<CR>
             noremap <buffer> <silent> T           :<C-U>call b:buffergator_catalog_viewer.visit_target(1, 1, "tab sb")<CR>
-            noremap <buffer> <silent> <SPACE>     :<C-U>call b:buffergator_catalog_viewer.goto_index_entry("n", 1, 1)<CR>
             noremap <buffer> <silent> <C-SPACE>   :<C-U>call b:buffergator_catalog_viewer.goto_index_entry("p", 1, 1)<CR>
             noremap <buffer> <silent> <C-@>       :<C-U>call b:buffergator_catalog_viewer.goto_index_entry("p", 1, 1)<CR>
             noremap <buffer> <silent> <C-N>       :<C-U>call b:buffergator_catalog_viewer.goto_index_entry("n", 1, 1)<CR>
